@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - EduPlatform</title>
+    <link rel="stylesheet" href="lms.css">
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-form" id="registerForm">
+            <div class="login-title">Create Account</div>
+
+            <div class="form-group">
+                <label for="role">Select Role:</label>
+                <select id="role" required>
+                    <option value="">Choose your role</option>
+                    <option value="student">Student</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="regEmail">Email:</label>
+                <input type="email" id="regEmail" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="regPassword">Password:</label>
+                <input type="password" id="regPassword" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="regConfirmPassword">Confirm Password:</label>
+                <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Send OTP</button>
+
+            <p style="margin-top: 1rem; text-align:center;">
+                Already have an account?
+                <a href="index.html" style="color:#667eea; font-weight:600;">Login</a>
+            </p>
+
+            <!-- OTP section -->
+            <div id="otpSection" class="form-group hidden" style="margin-top:1.5rem;">
+                <label for="otp">Enter OTP sent to your email:</label>
+                <input type="text" id="otp" placeholder="Enter 6-digit OTP">
+
+                <button type="button" id="verifyOtpBtn" class="login-btn" style="margin-top:1rem;">
+                    Verify OTP
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="register.js"></script>
+</body>
+</html>
