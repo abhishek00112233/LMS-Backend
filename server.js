@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // MongoDB connect
@@ -25,8 +29,8 @@ mongoose
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // your gmail
-    pass: process.env.EMAIL_PASS  // your app password
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS 
   }
 });
 
@@ -34,12 +38,12 @@ const transporter = nodemailer.createTransport({
  * ROUTES
  */
 
-// Simple test route
+// Test route
 app.get('/', (req, res) => {
   res.send('LMS Backend is running');
 });
 
-// SEND OTP (Registration Step 1)
+// SEND OTP
 app.post('/api/send-otp', async (req, res) => {
   try {
     const { role, name, email, password } = req.body;
@@ -56,13 +60,10 @@ app.post('/api/send-otp', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const otpExpires = Date.now() + 5 * 60 * 1000;
 
     if (user) {
-      // Update existing unverified user
       user.role = role;
       user.name = name;
       user.password = hashedPassword;
@@ -71,7 +72,6 @@ app.post('/api/send-otp', async (req, res) => {
       user.isVerified = false;
       await user.save();
     } else {
-      // Create new user with OTP
       user = await User.create({
         role,
         name,
@@ -83,13 +83,11 @@ app.post('/api/send-otp', async (req, res) => {
       });
     }
 
-    // Send OTP email
     await transporter.sendMail({
       from: `"EduPlatform" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your EduPlatform OTP Code',
-      text: `Your OTP for EduPlatform registration is ${otp}. This code will expire in 5 minutes.`,
-      html: `<p>Your OTP for EduPlatform registration is <b>${otp}</b>. This code will expire in 5 minutes.</p>`
+      html: `<p>Your OTP for EduPlatform registration is <b>${otp}</b>. Valid for 5 minutes.</p>`
     });
 
     res.json({ message: 'OTP sent successfully to your email.' });
@@ -99,7 +97,7 @@ app.post('/api/send-otp', async (req, res) => {
   }
 });
 
-// VERIFY OTP (Registration Step 2)
+// VERIFY OTP
 app.post('/api/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -113,7 +111,7 @@ app.post('/api/verify-otp', async (req, res) => {
     if (!user) return res.status(400).json({ message: 'User not found' });
 
     if (!user.otp || !user.otpExpires) {
-      return res.status(400).json({ message: 'No OTP found. Please request a new one.' });
+      return res.status(400).json({ message: 'No OTP found. Request a new one.' });
     }
 
     if (user.otp !== otp) {
@@ -121,7 +119,7 @@ app.post('/api/verify-otp', async (req, res) => {
     }
 
     if (Date.now() > user.otpExpires) {
-      return res.status(400).json({ message: 'OTP expired. Please request a new one.' });
+      return res.status(400).json({ message: 'OTP expired.' });
     }
 
     user.isVerified = true;
@@ -152,7 +150,7 @@ app.post('/api/login', async (req, res) => {
     }
 
     if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email using OTP before login.' });
+      return res.status(400).json({ message: 'Please verify your email before login.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
